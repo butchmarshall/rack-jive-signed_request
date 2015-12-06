@@ -31,8 +31,8 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"X-Shindig-AuthType" => "signed",
-				"Authorization" => authorization_header,
+				"HTTP_X_SHINDIG_AUTHTYPE" => "signed",
+				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
 			expect(code).to equal(200)
@@ -46,7 +46,7 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"Authorization" => authorization_header,
+				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
 			expect(code).to equal(200)
@@ -60,8 +60,8 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"Authorization" => authorization_header,
-				"X-Jive-User-ID" => "123"
+				"HTTP_AUTHORIZATION" => authorization_header,
+				"HTTP_X_JIVE_USER_ID" => "123"
 			})
 
 			expect(code).to equal(200)
@@ -79,8 +79,8 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"X-Shindig-AuthType" => "signed",
-				"Authorization" => authorization_header,
+				"HTTP_X_SHINDIG_AUTHTYPE" => "signed",
+				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
 			expect(code).to equal(401)
@@ -95,8 +95,8 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"X-Shindig-AuthType" => "signed",
-				"Authorization" => authorization_header,
+				"HTTP_X_SHINDIG_AUTHTYPE" => "signed",
+				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
 			expect(code).to equal(401)

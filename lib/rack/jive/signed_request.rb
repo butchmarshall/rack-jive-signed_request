@@ -23,11 +23,11 @@ module Rack
 				request = Request.new(env)
 
 				# Only bother authenticating if the request is identifying itself as signed
-				if env["X-Shindig-AuthType"] === "signed" || env["Authorization"].to_s.match(/^JiveEXTN/)
-					auth_header_params = ::CGI.parse env["Authorization"].gsub(/^JiveEXTN\s/,'')
+				if env["HTTP_X_SHINDIG_AUTHTYPE"] === "signed" || env["HTTP_AUTHORIZATION"].to_s.match(/^JiveEXTN/)
+					auth_header_params = ::CGI.parse env["HTTP_AUTHORIZATION"].gsub(/^JiveEXTN\s/,'')
 
 					begin
-						unless ::Jive::SignedRequest.authenticate(env["Authorization"], @secret.call(auth_header_params))
+						unless ::Jive::SignedRequest.authenticate(env["HTTP_AUTHORIZATION"], @secret.call(auth_header_params))
 							return [401, {"Content-Type" => "text/html"}, ["Invalid"]]
 						end
 					rescue ArgumentError => $e
@@ -35,9 +35,9 @@ module Rack
 					end
 				end
 
-				env["jive.user_id"] = env["X-Jive-User-ID"]
-				env["jive.email"] = env["X-Jive-User-Email"]
-				env["jive.external"] = (env["X-Jive-User-External"] === "true")
+				env["jive.user_id"] = env["HTTP_X_JIVE_USER_ID"]
+				env["jive.email"] = env["HTTP_X_JIVE_USER_EMAIL"]
+				env["jive.external"] = (env["HTTP_X_JIVE_USER_EXTERNAL"] === "true")
 
 				@app.call(env)
 			end
