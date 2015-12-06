@@ -51,6 +51,22 @@ describe Rack::Jive::SignedRequest do
 
 			expect(code).to equal(200)
 		end
+		
+		it 'should populate the env with jive variables' do
+			timestamp = (Time.now.to_i)*1000
+			str = "algorithm=HmacSHA256&client_id=#{CLIENT_ID}&jive_url=#{CGI.escape(JIVE_URL)}&tenant_id=#{TENANT_ID}&timestamp=#{timestamp}";
+			signature = ::Jive::SignedRequest.sign(str, SECRET, ALGORITHM)
+			authorization_header = "#{str}&signature=#{CGI::escape(signature)}";
+
+			code, env, body = middleware.call env_for('/', {
+				:method => "POST",
+				"Authorization" => authorization_header,
+				"X-Jive-User-ID" => "123"
+			})
+
+			expect(code).to equal(200)
+			expect(env["jive.user_id"]).to eq("123")
+		end
 	end
 
 	describe 'when signed request header is invalid' do
