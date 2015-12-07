@@ -58,6 +58,10 @@ end
 
 `request.env['jive.user_id']` will be populated with the authenticated users Jive ID
 
+`request.env['jive.email']` will be populated with the authenticated users Jive Email
+
+`request.env['jive.errors.signed_request']` will be populated if there was an error authenticating the signed request
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

@@ -23,7 +23,21 @@ describe Rack::Jive::SignedRequest do
 	end
 
 	describe 'when signed request header is valid' do
-		it 'allows the request' do
+		it 'should not process requests that dont identify themselves as signed jive requests' do
+			timestamp = (Time.now.to_i)*1000
+			str = "algorithm=HmacSHA256&client_id=#{CLIENT_ID}&jive_url=#{CGI.escape(JIVE_URL)}&tenant_id=#{TENANT_ID}&timestamp=#{timestamp}";
+			signature = ::Jive::SignedRequest.sign(str, SECRET, ALGORITHM)
+			authorization_header = "#{str}&signature=#{CGI::escape(signature)}";
+
+			code, env, body = middleware.call env_for('/', {
+				:method => "POST",
+				"HTTP_AUTHORIZATION" => authorization_header,
+			})
+
+			expect(env["jive.errors.signed_request"]).to eq(nil)
+		end
+		
+		it 'should populate the env with jive variables', :focus => true do
 			timestamp = (Time.now.to_i)*1000
 			str = "algorithm=HmacSHA256&client_id=#{CLIENT_ID}&jive_url=#{CGI.escape(JIVE_URL)}&tenant_id=#{TENANT_ID}&timestamp=#{timestamp}";
 			signature = ::Jive::SignedRequest.sign(str, SECRET, ALGORITHM)
@@ -31,41 +45,15 @@ describe Rack::Jive::SignedRequest do
 
 			code, env, body = middleware.call env_for('/', {
 				:method => "POST",
-				"HTTP_X_SHINDIG_AUTHTYPE" => "signed",
 				"HTTP_AUTHORIZATION" => authorization_header,
+				"HTTP_X_JIVE_USER_ID" => "123",
+				"HTTP_X_JIVE_USER_EMAIL" => "unit-test@jive.com"
 			})
 
-			expect(code).to equal(200)
-		end
-
-		it 'allows requests that dont identify themselves as signed jive requests' do
-			timestamp = (Time.now.to_i)*1000
-			str = "algorithm=HmacSHA256&client_id=#{CLIENT_ID}&jive_url=#{CGI.escape(JIVE_URL)}&tenant_id=#{TENANT_ID}&timestamp=#{timestamp}";
-			signature = ::Jive::SignedRequest.sign(str, SECRET, ALGORITHM)
-			authorization_header = "#{str}&signature=#{CGI::escape(signature)}";
-
-			code, env, body = middleware.call env_for('/', {
-				:method => "POST",
-				"HTTP_AUTHORIZATION" => authorization_header,
-			})
-
-			expect(code).to equal(200)
-		end
-		
-		it 'should populate the env with jive variables' do
-			timestamp = (Time.now.to_i)*1000
-			str = "algorithm=HmacSHA256&client_id=#{CLIENT_ID}&jive_url=#{CGI.escape(JIVE_URL)}&tenant_id=#{TENANT_ID}&timestamp=#{timestamp}";
-			signature = ::Jive::SignedRequest.sign(str, SECRET, ALGORITHM)
-			authorization_header = "#{str}&signature=#{CGI::escape(signature)}";
-
-			code, env, body = middleware.call env_for('/', {
-				:method => "POST",
-				"HTTP_AUTHORIZATION" => authorization_header,
-				"HTTP_X_JIVE_USER_ID" => "123"
-			})
-
-			expect(code).to equal(200)
+			expect(env["jive.errors.signed_request"]).to eq(nil)
 			expect(env["jive.user_id"]).to eq("123")
+			expect(env["jive.email"]).to eq("unit-test@jive.com")
+			expect(env["jive.external"]).to eq(false)
 		end
 	end
 
@@ -83,7 +71,9 @@ describe Rack::Jive::SignedRequest do
 				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
-			expect(code).to equal(401)
+			expect(env["jive.errors.signed_request"]).to_not equal(nil)
+			expect(env["jive.user_id"]).to equal(nil)
+			expect(env["jive.email"]).to equal(nil)
 		end
 
 		it 'rejects the request when malformed' do
@@ -99,7 +89,9 @@ describe Rack::Jive::SignedRequest do
 				"HTTP_AUTHORIZATION" => authorization_header,
 			})
 
-			expect(code).to equal(401)
+			expect(env["jive.errors.signed_request"]).to_not equal(nil)
+			expect(env["jive.user_id"]).to equal(nil)
+			expect(env["jive.email"]).to equal(nil)
 		end
 	end
 end
