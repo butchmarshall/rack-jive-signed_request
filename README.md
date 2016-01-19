@@ -60,6 +60,10 @@ end
 
 `request.env['jive.email']` will be populated with the authenticated users Jive Email
 
+`request.env['jive.tenant_id']` will be populated with add-ons tenant_id
+
+`request.env['jive.client_id']` will be populated with add-ons client_id
+
 `request.env['jive.errors.signed_request']` will be populated if there was an error authenticating the signed request
 
 ## Development

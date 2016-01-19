@@ -31,6 +31,8 @@ module Rack
 							env["jive.user_id"] = env["HTTP_X_JIVE_USER_ID"]
 							env["jive.email"] = env["HTTP_X_JIVE_USER_EMAIL"]
 							env["jive.external"] = (env["HTTP_X_JIVE_USER_EXTERNAL"] === "true")
+							env["jive.tenant_id"] = auth_header_params["tenant_id"].first
+							env["jive.client_id"] = auth_header_params["client_id"].first
 						else
 							env["jive.errors.signed_request"] = "Could not authenticate"
 						end

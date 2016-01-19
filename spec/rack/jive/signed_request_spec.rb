@@ -53,6 +53,8 @@ describe Rack::Jive::SignedRequest do
 			expect(env["jive.errors.signed_request"]).to eq(nil)
 			expect(env["jive.user_id"]).to eq("123")
 			expect(env["jive.email"]).to eq("unit-test@jive.com")
+			expect(env["jive.client_id"]).to eq(CLIENT_ID)
+			expect(env["jive.tenant_id"]).to eq(TENANT_ID)
 			expect(env["jive.external"]).to eq(false)
 		end
 	end
@@ -74,6 +76,8 @@ describe Rack::Jive::SignedRequest do
 			expect(env["jive.errors.signed_request"]).to_not equal(nil)
 			expect(env["jive.user_id"]).to equal(nil)
 			expect(env["jive.email"]).to equal(nil)
+			expect(env["jive.client_id"]).to eq(nil)
+			expect(env["jive.tenant_id"]).to eq(nil)
 		end
 
 		it 'rejects the request when malformed' do
@@ -92,6 +96,8 @@ describe Rack::Jive::SignedRequest do
 			expect(env["jive.errors.signed_request"]).to_not equal(nil)
 			expect(env["jive.user_id"]).to equal(nil)
 			expect(env["jive.email"]).to equal(nil)
+			expect(env["jive.client_id"]).to eq(nil)
+			expect(env["jive.tenant_id"]).to eq(nil)
 		end
 	end
 end
