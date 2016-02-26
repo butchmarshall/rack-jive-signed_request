@@ -27,7 +27,8 @@ module Rack
 					auth_header_params = ::CGI.parse env["HTTP_AUTHORIZATION"].gsub(/^JiveEXTN\s/,'')
 
 					begin
-						if ::Jive::SignedRequest.authenticate(env["HTTP_AUTHORIZATION"], @secret.call(auth_header_params))
+						secret = @secret.call(auth_header_params)
+						if ::Jive::SignedRequest.authenticate(env["HTTP_AUTHORIZATION"], secret)
 							env["jive.user_id"] = env["HTTP_X_JIVE_USER_ID"]
 							env["jive.email"] = env["HTTP_X_JIVE_USER_EMAIL"]
 							env["jive.external"] = (env["HTTP_X_JIVE_USER_EXTERNAL"] === "true")
